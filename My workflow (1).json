@@ -1,0 +1,172 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f59e4b7c-55b2-4de2-b949-b1f53dffea33",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://newsapi.org/v2/everything?q=bitcoin&apiKey=1bdea00140634127aff3ea879b827cf2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "7e228c03-7859-49c1-9c70-bea1f35a6b00",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "articles",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "cd3334e8-c012-4343-9f3e-0025ef6314d4",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "f1a782d6-d640-4d36-a5d1-a59afd05e827",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "sendTo": "bhanutejadatta@gmail.com",
+        "subject": "Everyday news 6am",
+        "message": "=<h1>News Articles<h1>{{ $json.allArticles }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "55bc8d8d-4d3f-4f65-a28e-bb895d7bb0a2",
+      "name": "Send a message",
+      "webhookId": "16c9b516-bc37-4e96-a811-4cd96d736b41",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Zll2N7nzHqSwul01",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let allArticles = \"\";\n\nfor (const item of $input.all()) {\n  item.json.myNewfield = 1;\n\n  let article = `<h1>${item.json.title}</h1><br><p>${item.json.content}</p><br> ` ;\n  allArticles += article;\n}\n\nreturn [\n  {\n    json: {\n      allArticles: allArticles\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        0
+      ],
+      "id": "f518f608-22ff-4c39-bcd7-bb5d59648847",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e14ac0b0-7187-43ff-87ba-dd0e011c36f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5ee049af122a9ab2cc9b732478b887bc4121fa527c26fe7b05f42d7410203202"
+  },
+  "nodeGroups": [],
+  "id": "jWr9LAGQdH5rhTmE",
+  "tags": []
+}
